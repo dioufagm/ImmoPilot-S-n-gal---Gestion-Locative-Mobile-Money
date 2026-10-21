@@ -32,6 +32,7 @@ export const Header: React.FC<HeaderProps> = ({
     markAllNotificationsAsRead,
     triggerBatchReminders,
     settings,
+    setViewMode,
   } = useApp();
 
   const [showNotifMenu, setShowNotifMenu] = useState(false);
@@ -118,10 +119,20 @@ export const Header: React.FC<HeaderProps> = ({
         {/* Lien portail locataire */}
         <button
           onClick={onOpenPortalModal}
-          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition-colors"
+          className="hidden sm:flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-blue-50 text-blue-700 hover:bg-blue-100 border border-blue-200 text-xs font-semibold transition-colors cursor-pointer"
         >
           <Smartphone className="w-3.5 h-3.5" />
           <span>Portail Locataire</span>
+        </button>
+
+        {/* Accueil du site (Exact replica of screenshots 2 & 3) */}
+        <button
+          onClick={() => setViewMode('landing')}
+          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
+          title="Retourner à la page d'accueil du site"
+        >
+          <Home className="w-4 h-4" />
+          <span>Accueil du site</span>
         </button>
 
         {/* Notifications Popover */}

@@ -28,6 +28,11 @@ interface AppContextType {
   settings: AgencySettings;
   activeTab: string;
   setActiveTab: (tab: string) => void;
+  viewMode: 'landing' | 'app';
+  setViewMode: (mode: 'landing' | 'app') => void;
+  activePricingPlan: 'Starter' | 'Pro' | 'Enterprise';
+  setActivePricingPlan: (plan: 'Starter' | 'Pro' | 'Enterprise') => void;
+  navigateToAppTab: (tab: string) => void;
   // Buildings
   addBuilding: (building: Omit<Building, 'id' | 'createdAt'>) => Building;
   updateBuilding: (id: string, updates: Partial<Building>) => void;
@@ -66,6 +71,21 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
+  const [viewMode, setViewMode] = useState<'landing' | 'app'>(() => {
+    const saved = localStorage.getItem('immopilot_view_mode');
+    return (saved as 'landing' | 'app') || 'landing';
+  });
+  const [activePricingPlan, setActivePricingPlan] = useState<'Starter' | 'Pro' | 'Enterprise'>('Pro');
+
+  const navigateToAppTab = (tab: string) => {
+    setActiveTab(tab);
+    setViewMode('app');
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_view_mode', viewMode);
+  }, [viewMode]);
 
   const [buildings, setBuildings] = useState<Building[]>(() => {
     const saved = localStorage.getItem('immopilot_buildings');
@@ -361,6 +381,11 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         settings,
         activeTab,
         setActiveTab,
+        viewMode,
+        setViewMode,
+        activePricingPlan,
+        setActivePricingPlan,
+        navigateToAppTab,
         addBuilding,
         updateBuilding,
         deleteBuilding,

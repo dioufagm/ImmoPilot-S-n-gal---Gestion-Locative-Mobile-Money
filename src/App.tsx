@@ -16,11 +16,13 @@ import { RentsScheduleView } from './components/rents/RentsScheduleView';
 import { ReportsView } from './components/reports/ReportsView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { LandingPage } from './components/landing/LandingPage';
 import { Tenant } from './types';
 
 function MainApp() {
   const {
     activeTab,
+    viewMode,
     addBuilding,
     viewingReceiptPayment,
     setViewingReceiptPayment,
@@ -49,6 +51,28 @@ function MainApp() {
     setTargetTenantForPayment(tenant || null);
     setIsPortalModalOpen(true);
   };
+
+  if (viewMode === 'landing') {
+    return (
+      <>
+        <LandingPage />
+        {/* Modals available if triggered */}
+        <TenantPaymentPortalModal
+          isOpen={isPortalModalOpen}
+          onClose={() => {
+            setIsPortalModalOpen(false);
+            setTargetTenantForPayment(null);
+          }}
+          initialTenant={targetTenantForPayment}
+        />
+        <RentReceiptModal
+          payment={viewingReceiptPayment}
+          isOpen={!!viewingReceiptPayment}
+          onClose={() => setViewingReceiptPayment(null)}
+        />
+      </>
+    );
+  }
 
   return (
     <div className="min-h-screen bg-[#f8fafc] text-slate-800 flex font-sans antialiased selection:bg-blue-500 selection:text-white">

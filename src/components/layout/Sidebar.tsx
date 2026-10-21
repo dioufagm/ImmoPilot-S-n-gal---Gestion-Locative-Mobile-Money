@@ -22,7 +22,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalModal }) => {
-  const { activeTab, setActiveTab, notifications } = useApp();
+  const { activeTab, setActiveTab, notifications, setViewMode } = useApp();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -103,6 +103,19 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
               </button>
             );
           })}
+
+          <div className="pt-2 mt-2 border-t border-slate-800/60">
+            <button
+              onClick={() => {
+                setViewMode('landing');
+                if (onClose) onClose();
+              }}
+              className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all cursor-pointer"
+            >
+              <Home className="w-5 h-5 flex-shrink-0 text-slate-400" />
+              <span>Accueil du site</span>
+            </button>
+          </div>
         </div>
 
         {/* Mobile Money Quick Simulation Banner */}
