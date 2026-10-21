@@ -1,0 +1,6 @@
+{
+  "name": "ImmoPilot Sénégal - Gestion Locative & Mobile Money",
+  "description": "Application intuitive et professionnelle de gestion locative au Sénégal pour propriétaires et agences immobilières : immeubles, locataires, suivi des loyers, quittances et paiements Mobile Money (Wave, Orange Money).",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
