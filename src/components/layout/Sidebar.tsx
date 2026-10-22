@@ -12,6 +12,7 @@ import {
   Sparkles,
   Smartphone,
   ChevronRight,
+  LogOut,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -22,7 +23,15 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalModal }) => {
-  const { activeTab, setActiveTab, notifications, setViewMode } = useApp();
+  const {
+    activeTab,
+    setActiveTab,
+    notifications,
+    setViewMode,
+    setSettingsSubTab,
+    subscriptionInfo,
+    setIsLogoutConfirmOpen,
+  } = useApp();
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -119,7 +128,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
         </div>
 
         {/* Mobile Money Quick Simulation Banner */}
-        <div className="p-3 mx-3 mb-4 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-900 border border-slate-700/60 text-slate-200">
+        <div className="p-3 mx-3 mb-3 rounded-xl bg-gradient-to-br from-slate-800/90 to-slate-900 border border-slate-700/60 text-slate-200">
           <div className="flex items-center gap-2 mb-1.5">
             <span className="flex h-2 w-2 rounded-full bg-emerald-400 animate-pulse" />
             <span className="text-xs font-semibold text-slate-300">Paiement Mobile Money</span>
@@ -143,14 +152,40 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
         </div>
 
         {/* Agency Footer */}
-        <div className="p-4 border-t border-slate-800/80 bg-slate-950/40 text-xs text-slate-400">
+        <div
+          onClick={() => {
+            setActiveTab('settings');
+            setSettingsSubTab('abonnement');
+            if (onClose) onClose();
+          }}
+          className="p-3.5 border-t border-slate-800/80 bg-slate-950/40 text-xs text-slate-400 cursor-pointer hover:bg-slate-900/60 transition-colors"
+          title="Gérer mon abonnement et mes paiements"
+        >
           <div className="flex items-center justify-between">
-            <span className="font-medium text-slate-300">Formule Pro</span>
+            <span className="font-medium text-slate-300">
+              Formule {subscriptionInfo.currentPlan}
+            </span>
             <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">
-              Actif
+              {subscriptionInfo.status === 'trial' ? 'Essai' : 'Actif'}
             </span>
           </div>
-          <p className="text-[11px] text-slate-500 mt-1">Dakar, Sénégal (FCFA)</p>
+          <p className="text-[11px] text-slate-500 mt-0.5">
+            {subscriptionInfo.daysLeft} jours restants • Dakar (FCFA)
+          </p>
+        </div>
+
+        {/* Exact Déconnexion Footer matching image_3c94cf31.png */}
+        <div className="pt-2 pb-3 px-3 border-t border-slate-800/80 bg-[#0e172a]">
+          <button
+            onClick={() => {
+              setIsLogoutConfirmOpen(true);
+              if (onClose) onClose();
+            }}
+            className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-[#f87171] hover:text-[#fca5a5] hover:bg-rose-500/10 transition-colors cursor-pointer group"
+          >
+            <LogOut className="w-5 h-5 flex-shrink-0 text-[#f87171] group-hover:text-[#fca5a5] transition-colors" />
+            <span className="font-semibold tracking-wide">Déconnexion</span>
+          </button>
         </div>
       </aside>
     </>

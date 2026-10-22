@@ -1,4 +1,16 @@
-import { Building, Unit, Tenant, Payment, AutoReminderRule, NotificationItem, AgencySettings } from '../types';
+import {
+  Building,
+  Unit,
+  Tenant,
+  Payment,
+  AutoReminderRule,
+  NotificationItem,
+  AgencySettings,
+  AdminUser,
+  SubscriptionInfo,
+  SubscriptionInvoice,
+  SupportTicket,
+} from '../types';
 
 export const INITIAL_AGENCY_SETTINGS: AgencySettings = {
   agencyName: 'AB Services Immobiliers',
@@ -618,5 +630,84 @@ export const INITIAL_NOTIFICATIONS: NotificationItem[] = [
     unitNumber: 'Appt B1',
     date: '2026-10-01T08:00:00Z',
     isRead: false,
+  },
+];
+
+export const INITIAL_ADMIN_USERS: AdminUser[] = [
+  {
+    id: 'usr-1',
+    fullName: 'Abdoulaye DIOUF',
+    email: 'dioufagm@gmail.com',
+    phone: '777030600',
+    role: 'Super Admin',
+    status: 'actif',
+    lastLogin: '2026-10-22 14:15',
+    createdAt: '2026-10-19',
+  },
+  {
+    id: 'usr-2',
+    fullName: 'Moussa Fall',
+    email: 'moussa.fall@abservices.sn',
+    phone: '775210984',
+    role: 'Gestionnaire',
+    status: 'actif',
+    lastLogin: '2026-10-22 09:40',
+    createdAt: '2026-10-20',
+  },
+  {
+    id: 'usr-3',
+    fullName: 'Awa Bâ',
+    email: 'awa.ba@abservices.sn',
+    phone: '784112233',
+    role: 'Comptable',
+    status: 'actif',
+    lastLogin: '2026-10-21 17:02',
+    createdAt: '2026-10-20',
+  },
+  {
+    id: 'usr-4',
+    fullName: 'Cheikh Sène',
+    email: 'cheikh.sene@abservices.sn',
+    phone: '763321100',
+    role: 'Agent Terrain',
+    status: 'invite',
+    lastLogin: 'Jamais connecté',
+    createdAt: '2026-10-21',
+  },
+];
+
+export const INITIAL_SUBSCRIPTION_INFO: SubscriptionInfo = {
+  currentPlan: 'Pro',
+  status: 'trial',
+  trialEndDate: '2026-11-02',
+  daysLeft: 11,
+  maxBuildings: 15,
+  maxTenants: 100,
+};
+
+export const INITIAL_SUBSCRIPTION_INVOICES: SubscriptionInvoice[] = [
+  {
+    id: 'inv-001',
+    plan: 'Pro',
+    durationMonths: 1,
+    amount: 15000,
+    method: 'Orange Money',
+    phone: '777030600',
+    date: '2026-10-19',
+    reference: 'OM-SUB-902182',
+    status: 'succes',
+  },
+];
+
+export const INITIAL_SUPPORT_TICKETS: SupportTicket[] = [
+  {
+    id: 'tkt-01',
+    subject: 'Passer à la formule Pro',
+    urgency: 'Normale',
+    message: 'Bonjour, nous souhaitons activer le prélèvement automatique ou le paiement groupé de nos 3 immeubles via Wave.',
+    createdAt: '2026-10-20 11:30',
+    status: 'resolue',
+    adminReply: 'Bonjour M. DIOUF, votre compte Pro est bien configuré avec 11 jours d’essai offerts. Vous pouvez régler votre renouvellement par Wave ou Orange Money directement dans l’onglet Abonnement.',
+    repliedAt: '2026-10-20 14:10',
   },
 ];

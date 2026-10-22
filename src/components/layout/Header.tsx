@@ -10,6 +10,9 @@ import {
   Receipt,
   Clock,
   Sparkles,
+  LogOut,
+  User,
+  ChevronDown,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { formatShortDate } from '../../utils/formatters';
@@ -27,17 +30,22 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const {
     activeTab,
+    setActiveTab,
     notifications,
     markNotificationAsRead,
     markAllNotificationsAsRead,
     triggerBatchReminders,
     settings,
     setViewMode,
+    setSettingsSubTab,
+    setIsLogoutConfirmOpen,
   } = useApp();
 
   const [showNotifMenu, setShowNotifMenu] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const notifRef = useRef<HTMLDivElement>(null);
+  const userMenuRef = useRef<HTMLDivElement>(null);
 
   const unreadCount = notifications.filter(n => !n.isRead).length;
 
@@ -45,6 +53,9 @@ export const Header: React.FC<HeaderProps> = ({
     const handleClickOutside = (e: MouseEvent) => {
       if (notifRef.current && !notifRef.current.contains(e.target as Node)) {
         setShowNotifMenu(false);
+      }
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setShowUserMenu(false);
       }
     };
     document.addEventListener('mousedown', handleClickOutside);
@@ -204,15 +215,56 @@ export const Header: React.FC<HeaderProps> = ({
           )}
         </div>
 
-        {/* User Profile Badge (Abdoulaye DIOUF - AB Services) */}
-        <div className="flex items-center gap-3 pl-2 sm:pl-3 border-l border-slate-200">
-          <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
-            {settings.managerName.charAt(0)}
-          </div>
-          <div className="hidden sm:block text-left">
-            <p className="text-xs font-bold text-slate-800 leading-tight">{settings.managerName}</p>
-            <p className="text-[11px] text-slate-500 font-medium leading-tight">{settings.agencyName}</p>
-          </div>
+        {/* User Profile Badge & Menu (Abdoulaye DIOUF - AB Services) */}
+        <div className="relative" ref={userMenuRef}>
+          <button
+            onClick={() => setShowUserMenu(!showUserMenu)}
+            className="flex items-center gap-2.5 pl-2 sm:pl-3 border-l border-slate-200 hover:opacity-85 transition-opacity text-left cursor-pointer"
+            title="Menu utilisateur"
+          >
+            <div className="w-9 h-9 rounded-full bg-blue-600 text-white font-bold text-sm flex items-center justify-center shadow-sm">
+              {settings.managerName.charAt(0)}
+            </div>
+            <div className="hidden sm:block text-left">
+              <p className="text-xs font-bold text-slate-800 leading-tight">{settings.managerName}</p>
+              <p className="text-[11px] text-slate-500 font-medium leading-tight">{settings.agencyName}</p>
+            </div>
+            <ChevronDown className="w-3.5 h-3.5 text-slate-400 hidden sm:block" />
+          </button>
+
+          {showUserMenu && (
+            <div className="absolute right-0 mt-2 w-56 bg-white rounded-2xl shadow-xl border border-slate-100 p-2 z-50 animate-in fade-in zoom-in-95 duration-150">
+              <div className="px-3 py-2 border-b border-slate-100 mb-1">
+                <p className="text-xs font-bold text-slate-900">{settings.managerName}</p>
+                <p className="text-[11px] text-slate-500 truncate">{settings.email}</p>
+              </div>
+
+              <button
+                onClick={() => {
+                  setActiveTab('settings');
+                  setSettingsSubTab('profil');
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+              >
+                <User className="w-4 h-4 text-slate-400" />
+                <span>Mon profil & Agence</span>
+              </button>
+
+              <div className="border-t border-slate-100 my-1" />
+
+              <button
+                onClick={() => {
+                  setShowUserMenu(false);
+                  setIsLogoutConfirmOpen(true);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-rose-600 hover:bg-rose-50 transition-colors text-left cursor-pointer"
+              >
+                <LogOut className="w-4 h-4 text-rose-600" />
+                <span>Déconnexion</span>
+              </button>
+            </div>
+          )}
         </div>
       </div>
     </header>

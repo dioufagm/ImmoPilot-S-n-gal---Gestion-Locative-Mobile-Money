@@ -17,6 +17,8 @@ import { ReportsView } from './components/reports/ReportsView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { LandingPage } from './components/landing/LandingPage';
+import { LogoutConfirmModal } from './components/auth/LogoutConfirmModal';
+import { LoginModal } from './components/auth/LoginModal';
 import { Tenant } from './types';
 
 function MainApp() {
@@ -70,6 +72,8 @@ function MainApp() {
           isOpen={!!viewingReceiptPayment}
           onClose={() => setViewingReceiptPayment(null)}
         />
+        <LogoutConfirmModal />
+        <LoginModal />
       </>
     );
   }
@@ -182,6 +186,9 @@ function MainApp() {
         }}
         initialTenant={targetTenantForPayment}
       />
+
+      <LogoutConfirmModal />
+      <LoginModal />
     </div>
   );
 }

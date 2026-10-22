@@ -15,11 +15,22 @@ import {
   ArrowRight,
   ShieldCheck,
   CheckCircle2,
+  LogIn,
+  LogOut,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
 export const LandingPage: React.FC = () => {
-  const { setViewMode, navigateToAppTab, setActivePricingPlan, settings } = useApp();
+  const {
+    setViewMode,
+    navigateToAppTab,
+    setActivePricingPlan,
+    setSettingsSubTab,
+    settings,
+    isAuthenticated,
+    setIsLoginModalOpen,
+    setIsLogoutConfirmOpen,
+  } = useApp();
 
   // FAQ accordion state
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -174,21 +185,44 @@ export const LandingPage: React.FC = () => {
           </button>
         </nav>
 
-        {/* Right Account Button (Matching "A Abdoulaye DIOUF Mon compte") */}
-        <button
-          onClick={() => navigateToAppTab('dashboard')}
-          className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-slate-50 border border-slate-200/80 transition-all text-left group cursor-pointer"
-        >
-          <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
-            {settings.managerName.charAt(0)}
-          </div>
-          <div className="hidden sm:block">
-            <p className="text-xs font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
-              {settings.managerName}
-            </p>
-            <p className="text-[10px] text-slate-400 font-medium leading-tight">Mon compte</p>
-          </div>
-        </button>
+        {/* Right Account & Login / Logout Buttons */}
+        <div className="flex items-center gap-2">
+          {isAuthenticated ? (
+            <>
+              <button
+                onClick={() => navigateToAppTab('dashboard')}
+                className="flex items-center gap-2.5 px-3 py-1.5 rounded-full hover:bg-slate-50 border border-slate-200/80 transition-all text-left group cursor-pointer"
+                title="Accéder à mon espace gestionnaire"
+              >
+                <div className="w-7 h-7 rounded-full bg-blue-600 text-white font-bold text-xs flex items-center justify-center shadow-xs">
+                  {settings.managerName.charAt(0)}
+                </div>
+                <div className="hidden sm:block">
+                  <p className="text-xs font-bold text-slate-800 leading-tight group-hover:text-blue-600 transition-colors">
+                    {settings.managerName}
+                  </p>
+                  <p className="text-[10px] text-slate-400 font-medium leading-tight">Mon compte</p>
+                </div>
+              </button>
+
+              <button
+                onClick={() => setIsLogoutConfirmOpen(true)}
+                className="p-2 rounded-full text-slate-400 hover:text-rose-600 hover:bg-rose-50 transition-colors cursor-pointer"
+                title="Déconnexion"
+              >
+                <LogOut className="w-4 h-4 text-rose-500" />
+              </button>
+            </>
+          ) : (
+            <button
+              onClick={() => setIsLoginModalOpen(true)}
+              className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-600/25 transition-all cursor-pointer"
+            >
+              <LogIn className="w-3.5 h-3.5" />
+              <span>Connexion</span>
+            </button>
+          )}
+        </div>
       </header>
 
       {/* 2. Hero Section matching image_edae3ab0.png */}
@@ -431,7 +465,8 @@ export const LandingPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setActivePricingPlan('Pro');
-                    navigateToAppTab('dashboard');
+                    setSettingsSubTab('abonnement');
+                    navigateToAppTab('settings');
                   }}
                   className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/25 transition-all cursor-pointer"
                 >
@@ -483,7 +518,8 @@ export const LandingPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setActivePricingPlan('Enterprise');
-                    navigateToAppTab('dashboard');
+                    setSettingsSubTab('abonnement');
+                    navigateToAppTab('settings');
                   }}
                   className="w-full py-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"
                 >

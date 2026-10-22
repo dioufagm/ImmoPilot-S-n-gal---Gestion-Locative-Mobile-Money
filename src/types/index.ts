@@ -136,3 +136,47 @@ export interface AgencySettings {
   enableAutoWhatsApp: boolean;
   enableAutoSms: boolean;
 }
+
+export interface AdminUser {
+  id: string;
+  fullName: string;
+  email: string;
+  phone: string;
+  role: 'Super Admin' | 'Gestionnaire' | 'Comptable' | 'Agent Terrain';
+  status: 'actif' | 'invite' | 'suspendu';
+  lastLogin: string;
+  createdAt: string;
+}
+
+export interface SubscriptionInfo {
+  currentPlan: 'Starter' | 'Pro' | 'Enterprise';
+  status: 'trial' | 'active' | 'expired';
+  trialEndDate: string; // e.g. "2026-11-02"
+  daysLeft: number;
+  maxBuildings: number;
+  maxTenants: number;
+}
+
+export interface SubscriptionInvoice {
+  id: string;
+  plan: 'Pro' | 'Enterprise';
+  durationMonths: number;
+  amount: number;
+  method: 'Orange Money' | 'Wave' | 'MTN MoMo';
+  phone: string;
+  date: string;
+  reference: string;
+  status: 'succes' | 'en_attente';
+}
+
+export interface SupportTicket {
+  id: string;
+  subject: string;
+  urgency: 'Normale' | 'Haute' | 'Urgente';
+  message: string;
+  createdAt: string;
+  status: 'en_attente' | 'en_cours' | 'resolue';
+  adminReply?: string;
+  repliedAt?: string;
+}
+

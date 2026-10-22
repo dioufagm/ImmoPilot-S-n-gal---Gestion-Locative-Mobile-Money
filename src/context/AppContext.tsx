@@ -7,6 +7,10 @@ import {
   AutoReminderRule,
   NotificationItem,
   AgencySettings,
+  AdminUser,
+  SubscriptionInfo,
+  SubscriptionInvoice,
+  SupportTicket,
 } from '../types';
 import {
   INITIAL_AGENCY_SETTINGS,
@@ -16,7 +20,20 @@ import {
   INITIAL_PAYMENTS,
   INITIAL_RULES,
   INITIAL_NOTIFICATIONS,
+  INITIAL_ADMIN_USERS,
+  INITIAL_SUBSCRIPTION_INFO,
+  INITIAL_SUBSCRIPTION_INVOICES,
+  INITIAL_SUPPORT_TICKETS,
 } from '../data/mockData';
+
+export type SettingsSubTab = 'profil' | 'agence' | 'utilisateurs' | 'securite' | 'abonnement' | 'support';
+
+export interface UserProfileData {
+  fullName: string;
+  phone: string;
+  email: string;
+  registrationDate: string;
+}
 
 interface AppContextType {
   buildings: Building[];
@@ -33,6 +50,31 @@ interface AppContextType {
   activePricingPlan: 'Starter' | 'Pro' | 'Enterprise';
   setActivePricingPlan: (plan: 'Starter' | 'Pro' | 'Enterprise') => void;
   navigateToAppTab: (tab: string) => void;
+  // Settings subtab navigation
+  settingsSubTab: SettingsSubTab;
+  setSettingsSubTab: (tab: SettingsSubTab) => void;
+  // User Profile
+  userProfile: UserProfileData;
+  updateUserProfile: (data: Partial<UserProfileData>) => void;
+  // Security / Password
+  changePassword: (currentPass: string, newPass: string) => { success: boolean; message: string };
+  // Admin Users
+  adminUsers: AdminUser[];
+  addAdminUser: (user: Omit<AdminUser, 'id' | 'createdAt' | 'lastLogin'>) => void;
+  updateAdminUser: (id: string, updates: Partial<AdminUser>) => void;
+  deleteAdminUser: (id: string) => void;
+  // Subscription
+  subscriptionInfo: SubscriptionInfo;
+  subscriptionInvoices: SubscriptionInvoice[];
+  renewSubscription: (
+    plan: 'Pro' | 'Enterprise',
+    durationMonths: number,
+    method: 'Orange Money' | 'Wave' | 'MTN MoMo',
+    phone: string
+  ) => SubscriptionInvoice;
+  // Support Tickets
+  supportTickets: SupportTicket[];
+  addSupportTicket: (ticket: Omit<SupportTicket, 'id' | 'createdAt' | 'status'>) => SupportTicket;
   // Buildings
   addBuilding: (building: Omit<Building, 'id' | 'createdAt'>) => Building;
   updateBuilding: (id: string, updates: Partial<Building>) => void;
@@ -60,6 +102,14 @@ interface AppContextType {
   updateSettings: (newSettings: Partial<AgencySettings>) => void;
   // Reset demo data
   resetToDefaults: () => void;
+  // Authentication & Session
+  isAuthenticated: boolean;
+  login: (email?: string, password?: string) => { success: boolean; message: string };
+  logout: () => void;
+  isLoginModalOpen: boolean;
+  setIsLoginModalOpen: (open: boolean) => void;
+  isLogoutConfirmOpen: boolean;
+  setIsLogoutConfirmOpen: (open: boolean) => void;
   // Quick navigation helpers
   viewingReceiptPayment: Payment | null;
   setViewingReceiptPayment: (payment: Payment | null) => void;
@@ -76,8 +126,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return (saved as 'landing' | 'app') || 'landing';
   });
   const [activePricingPlan, setActivePricingPlan] = useState<'Starter' | 'Pro' | 'Enterprise'>('Pro');
+  const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>('profil');
+
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => {
+    const saved = localStorage.getItem('immopilot_auth');
+    return saved !== null ? saved === 'true' : true;
+  });
+  const [isLoginModalOpen, setIsLoginModalOpen] = useState<boolean>(false);
+  const [isLogoutConfirmOpen, setIsLogoutConfirmOpen] = useState<boolean>(false);
 
   const navigateToAppTab = (tab: string) => {
+    if (!isAuthenticated) {
+      setIsLoginModalOpen(true);
+      return;
+    }
     setActiveTab(tab);
     setViewMode('app');
     window.scrollTo({ top: 0, behavior: 'smooth' });
@@ -86,6 +148,10 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   useEffect(() => {
     localStorage.setItem('immopilot_view_mode', viewMode);
   }, [viewMode]);
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_auth', String(isAuthenticated));
+  }, [isAuthenticated]);
 
   const [buildings, setBuildings] = useState<Building[]>(() => {
     const saved = localStorage.getItem('immopilot_buildings');
@@ -122,10 +188,47 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     return saved ? JSON.parse(saved) : INITIAL_AGENCY_SETTINGS;
   });
 
+  // User profile matching image_f7b42411.png
+  const [userProfile, setUserProfile] = useState<UserProfileData>(() => {
+    const saved = localStorage.getItem('immopilot_user_profile');
+    return saved
+      ? JSON.parse(saved)
+      : {
+          fullName: 'Abdoulaye DIOUF',
+          phone: '777030600',
+          email: 'dioufagm@gmail.com',
+          registrationDate: '19 oct. 2026',
+        };
+  });
+
+  // Admin users team management
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>(() => {
+    const saved = localStorage.getItem('immopilot_admin_users');
+    return saved ? JSON.parse(saved) : INITIAL_ADMIN_USERS;
+  });
+
+  // Subscription info matching image_c7fdaffd.png
+  const [subscriptionInfo, setSubscriptionInfo] = useState<SubscriptionInfo>(() => {
+    const saved = localStorage.getItem('immopilot_subscription');
+    return saved ? JSON.parse(saved) : INITIAL_SUBSCRIPTION_INFO;
+  });
+
+  // Subscription invoices
+  const [subscriptionInvoices, setSubscriptionInvoices] = useState<SubscriptionInvoice[]>(() => {
+    const saved = localStorage.getItem('immopilot_sub_invoices');
+    return saved ? JSON.parse(saved) : INITIAL_SUBSCRIPTION_INVOICES;
+  });
+
+  // Support tickets matching image_6f314153.png
+  const [supportTickets, setSupportTickets] = useState<SupportTicket[]>(() => {
+    const saved = localStorage.getItem('immopilot_support_tickets');
+    return saved ? JSON.parse(saved) : INITIAL_SUPPORT_TICKETS;
+  });
+
   const [viewingReceiptPayment, setViewingReceiptPayment] = useState<Payment | null>(null);
   const [portalTenant, setPortalTenant] = useState<Tenant | null>(null);
 
-  // Sync to localStorage
+  // Sync state to localStorage
   useEffect(() => {
     localStorage.setItem('immopilot_buildings', JSON.stringify(buildings));
   }, [buildings]);
@@ -154,6 +257,161 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     localStorage.setItem('immopilot_settings', JSON.stringify(settings));
   }, [settings]);
 
+  useEffect(() => {
+    localStorage.setItem('immopilot_user_profile', JSON.stringify(userProfile));
+  }, [userProfile]);
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_admin_users', JSON.stringify(adminUsers));
+  }, [adminUsers]);
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_subscription', JSON.stringify(subscriptionInfo));
+  }, [subscriptionInfo]);
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_sub_invoices', JSON.stringify(subscriptionInvoices));
+  }, [subscriptionInvoices]);
+
+  useEffect(() => {
+    localStorage.setItem('immopilot_support_tickets', JSON.stringify(supportTickets));
+  }, [supportTickets]);
+
+  // Actions: User Profile
+  const updateUserProfile = (data: Partial<UserProfileData>) => {
+    setUserProfile(prev => {
+      const updated = { ...prev, ...data };
+      if (data.fullName) {
+        updateSettings({ managerName: data.fullName });
+      }
+      if (data.email) {
+        updateSettings({ email: data.email });
+      }
+      return updated;
+    });
+
+    addNotification({
+      title: 'Profil mis à jour',
+      message: 'Vos informations personnelles ont été enregistrées avec succès.',
+      type: 'systeme',
+    });
+  };
+
+  // Actions: Security & Password
+  const changePassword = (currentPass: string, newPass: string) => {
+    if (!currentPass || !newPass) {
+      return { success: false, message: 'Veuillez remplir tous les champs.' };
+    }
+    if (newPass.length < 6) {
+      return { success: false, message: 'Le nouveau mot de passe doit comporter au moins 6 caractères.' };
+    }
+
+    addNotification({
+      title: 'Sécurité du compte',
+      message: 'Votre mot de passe a été modifié avec succès.',
+      type: 'systeme',
+    });
+
+    return { success: true, message: 'Votre mot de passe a été modifié avec succès.' };
+  };
+
+  // Actions: Admin Users
+  const addAdminUser = (userData: Omit<AdminUser, 'id' | 'createdAt' | 'lastLogin'>) => {
+    const newUser: AdminUser = {
+      ...userData,
+      id: `usr-${Date.now()}`,
+      createdAt: new Date().toISOString().split('T')[0],
+      lastLogin: 'Invitation envoyée',
+    };
+    setAdminUsers(prev => [newUser, ...prev]);
+
+    addNotification({
+      title: 'Nouvel utilisateur ajouté',
+      message: `${userData.fullName} (${userData.role}) a été ajouté à votre équipe.`,
+      type: 'systeme',
+    });
+  };
+
+  const updateAdminUser = (id: string, updates: Partial<AdminUser>) => {
+    setAdminUsers(prev => prev.map(u => (u.id === id ? { ...u, ...updates } : u)));
+  };
+
+  const deleteAdminUser = (id: string) => {
+    setAdminUsers(prev => prev.filter(u => u.id !== id));
+  };
+
+  // Actions: Subscription
+  const renewSubscription = (
+    plan: 'Pro' | 'Enterprise',
+    durationMonths: number,
+    method: 'Orange Money' | 'Wave' | 'MTN MoMo',
+    phone: string
+  ): SubscriptionInvoice => {
+    const basePrice = plan === 'Pro' ? 15000 : 45000;
+    let finalAmount = basePrice * durationMonths;
+    if (durationMonths === 12) {
+      // 2 mois offerts: 10 mois facturés
+      finalAmount = basePrice * 10;
+    }
+
+    const newInvoice: SubscriptionInvoice = {
+      id: `inv-${Date.now()}`,
+      plan,
+      durationMonths,
+      amount: finalAmount,
+      method,
+      phone,
+      date: new Date().toISOString().split('T')[0],
+      reference: `${method === 'Wave' ? 'WV' : 'OM'}-SUB-${Math.floor(100000 + Math.random() * 900000)}`,
+      status: 'succes',
+    };
+
+    setSubscriptionInvoices(prev => [newInvoice, ...prev]);
+
+    // Extend subscription
+    setSubscriptionInfo(prev => ({
+      ...prev,
+      currentPlan: plan,
+      status: 'active',
+      daysLeft: (prev.daysLeft || 0) + durationMonths * 30,
+      maxBuildings: plan === 'Enterprise' ? 999 : 15,
+      maxTenants: plan === 'Enterprise' ? 9999 : 100,
+    }));
+
+    addNotification({
+      title: 'Abonnement renouvelé',
+      message: `Votre abonnement formule ${plan} (${durationMonths} mois) a été validé avec succès.`,
+      type: 'systeme',
+    });
+
+    return newInvoice;
+  };
+
+  // Actions: Support Tickets
+  const addSupportTicket = (
+    ticketData: Omit<SupportTicket, 'id' | 'createdAt' | 'status'>
+  ): SupportTicket => {
+    const newTicket: SupportTicket = {
+      ...ticketData,
+      id: `tkt-${Date.now()}`,
+      createdAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+      status: 'en_attente',
+      adminReply:
+        'Votre demande a bien été reçue par notre équipe support à Dakar. Un conseiller vous répond sous 1 heure.',
+      repliedAt: new Date().toISOString().replace('T', ' ').substring(0, 16),
+    };
+
+    setSupportTickets(prev => [newTicket, ...prev]);
+
+    addNotification({
+      title: 'Ticket de support envoyé',
+      message: `Votre demande "${ticketData.subject}" a été transmise à l'équipe IMMO PILOT.`,
+      type: 'systeme',
+    });
+
+    return newTicket;
+  };
+
   // Actions: Buildings
   const addBuilding = (data: Omit<Building, 'id' | 'createdAt'>): Building => {
     const newId = `bld-${Date.now()}`;
@@ -164,7 +422,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setBuildings(prev => [newBuilding, ...prev]);
 
-    // Create placeholder units if totalUnitsCount > 0
     if (data.totalUnitsCount > 0) {
       const generatedUnits: Unit[] = [];
       for (let i = 1; i <= Math.min(data.totalUnitsCount, 12); i++) {
@@ -185,7 +442,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setUnits(prev => [...generatedUnits, ...prev]);
     }
 
-    // Add notification
     addNotification({
       title: 'Nouvel immeuble ajouté',
       message: `L'immeuble "${data.name}" situé à ${data.district} a été configuré avec succès.`,
@@ -200,7 +456,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       prev.map(b => (b.id === id ? { ...b, ...updates } : b))
     );
     if (updates.name) {
-      // sync buildingName in units, tenants, payments
       setUnits(prev => prev.map(u => (u.buildingId === id ? { ...u, buildingName: updates.name! } : u)));
     }
   };
@@ -236,7 +491,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     };
     setTenants(prev => [newTenant, ...prev]);
 
-    // Update the unit status to occupied
     updateUnit(data.unitId, {
       status: 'occupe',
       currentTenantId: newTenant.id,
@@ -316,7 +570,6 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
   };
 
   const triggerBatchReminders = (ruleId?: string) => {
-    // Find tenants with pending or overdue rents
     const latePayments = payments.filter(p => p.status === 'retard' || p.status === 'partiel');
     const targetedTenants = tenants.filter(t => latePayments.some(lp => lp.tenantId === t.id));
 
@@ -367,6 +620,39 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
     setRules(INITIAL_RULES);
     setNotifications(INITIAL_NOTIFICATIONS);
     setSettings(INITIAL_AGENCY_SETTINGS);
+    setAdminUsers(INITIAL_ADMIN_USERS);
+    setSubscriptionInfo(INITIAL_SUBSCRIPTION_INFO);
+    setSubscriptionInvoices(INITIAL_SUBSCRIPTION_INVOICES);
+    setSupportTickets(INITIAL_SUPPORT_TICKETS);
+    setUserProfile({
+      fullName: 'Abdoulaye DIOUF',
+      phone: '777030600',
+      email: 'dioufagm@gmail.com',
+      registrationDate: '19 oct. 2026',
+    });
+  };
+
+  const logout = () => {
+    setIsAuthenticated(false);
+    setViewMode('landing');
+    setIsLogoutConfirmOpen(false);
+    addNotification({
+      type: 'loyer_recu',
+      title: 'Session terminée',
+      message: 'Vous avez été déconnecté avec succès de votre compte IMMO PILOT.',
+    });
+  };
+
+  const login = (email?: string, password?: string) => {
+    setIsAuthenticated(true);
+    setViewMode('app');
+    setIsLoginModalOpen(false);
+    addNotification({
+      type: 'loyer_recu',
+      title: 'Connexion réussie',
+      message: `Bienvenue sur votre espace IMMO PILOT, ${userProfile.fullName}.`,
+    });
+    return { success: true, message: 'Connexion réussie avec succès !' };
   };
 
   return (
@@ -386,6 +672,20 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         activePricingPlan,
         setActivePricingPlan,
         navigateToAppTab,
+        settingsSubTab,
+        setSettingsSubTab,
+        userProfile,
+        updateUserProfile,
+        changePassword,
+        adminUsers,
+        addAdminUser,
+        updateAdminUser,
+        deleteAdminUser,
+        subscriptionInfo,
+        subscriptionInvoices,
+        renewSubscription,
+        supportTickets,
+        addSupportTicket,
         addBuilding,
         updateBuilding,
         deleteBuilding,
@@ -405,6 +705,13 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
         addNotification,
         updateSettings,
         resetToDefaults,
+        isAuthenticated,
+        login,
+        logout,
+        isLoginModalOpen,
+        setIsLoginModalOpen,
+        isLogoutConfirmOpen,
+        setIsLogoutConfirmOpen,
         viewingReceiptPayment,
         setViewingReceiptPayment,
         portalTenant,
