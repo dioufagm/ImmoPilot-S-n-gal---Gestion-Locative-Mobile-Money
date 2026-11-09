@@ -3,7 +3,6 @@ import {
   User,
   Building2,
   Lock,
-  CreditCard,
   HelpCircle,
   Users,
   Eye,
@@ -16,17 +15,11 @@ import {
   Plus,
   Trash2,
   Clock,
-  Sparkles,
-  Download,
-  Smartphone,
-  Shield,
   LifeBuoy,
   LogOut,
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 import { useApp, SettingsSubTab } from '../../context/AppContext';
 import { AdminUser } from '../../types';
-import { formatFCFA, formatShortDate } from '../../utils/formatters';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -39,9 +32,6 @@ export const SettingsView: React.FC = () => {
     addAdminUser,
     updateAdminUser,
     deleteAdminUser,
-    subscriptionInfo,
-    subscriptionInvoices,
-    renewSubscription,
     supportTickets,
     addSupportTicket,
     settings,
@@ -107,40 +97,7 @@ export const SettingsView: React.FC = () => {
     }
   };
 
-  // 3. Abonnement state
-  const [selectedSubPlan, setSelectedSubPlan] = useState<'Pro' | 'Enterprise'>('Pro');
-  const [selectedDuration, setSelectedDuration] = useState<1 | 3 | 12>(1);
-  const [subPhone, setSubPhone] = useState(userProfile.phone || '777030600');
-  const [selectedPaymentProvider, setSelectedPaymentProvider] = useState<
-    'Orange Money' | 'Wave' | 'MTN MoMo'
-  >('Orange Money');
-  const [isRenewing, setIsRenewing] = useState(false);
-
-  const planBasePrice = selectedSubPlan === 'Pro' ? 15000 : 45000;
-  const computedSubTotal =
-    selectedDuration === 12 ? planBasePrice * 10 : planBasePrice * selectedDuration;
-
-  const handleRenewSubscription = () => {
-    setIsRenewing(true);
-    setTimeout(() => {
-      setIsRenewing(false);
-      renewSubscription(selectedSubPlan, selectedDuration, selectedPaymentProvider, subPhone);
-      try {
-        confetti({
-          particleCount: 70,
-          spread: 60,
-          origin: { y: 0.6 },
-        });
-      } catch (e) {
-        // ignore
-      }
-      showToast(
-        `Abonnement ${selectedSubPlan} (${selectedDuration} mois) renouvelé avec succès !`
-      );
-    }, 1000);
-  };
-
-  // 4. Support state
+  // 3. Support state
   const [supportSubject, setSupportSubject] = useState('');
   const [supportUrgency, setSupportUrgency] = useState<'Normale' | 'Haute' | 'Urgente'>('Normale');
   const [supportMessage, setSupportMessage] = useState('');
@@ -202,7 +159,6 @@ export const SettingsView: React.FC = () => {
     { id: 'agence', label: 'Agence', icon: Building2 },
     { id: 'utilisateurs', label: 'Utilisateurs', icon: Users },
     { id: 'securite', label: 'Sécurité', icon: Lock },
-    { id: 'abonnement', label: 'Abonnement', icon: CreditCard },
     { id: 'support', label: 'Support', icon: HelpCircle },
   ];
 
@@ -220,7 +176,7 @@ export const SettingsView: React.FC = () => {
       <div>
         <h2 className="text-3xl font-black text-blue-600 tracking-tight">Paramètres</h2>
         <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-          Gérez votre compte, votre agence et votre abonnement.
+          Gérez votre compte, votre agence et vos utilisateurs.
         </p>
       </div>
 
@@ -673,270 +629,7 @@ export const SettingsView: React.FC = () => {
           )}
 
           {/* ========================================================= */}
-          {/* 5. ABONNEMENT SUBTAB (Matches image_c7fdaffd.png)        */}
-          {/* ========================================================= */}
-          {settingsSubTab === 'abonnement' && (
-            <div className="space-y-6">
-              {/* Top Card: Formule actuelle matching image_c7fdaffd.png */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs font-semibold text-slate-500">Formule actuelle</span>
-                  <span className="px-3 py-1 rounded-full bg-blue-50 text-blue-600 text-xs font-bold border border-blue-200/60">
-                    {subscriptionInfo.status === 'trial' ? 'Essai gratuit' : 'Actif'}
-                  </span>
-                </div>
-
-                <div>
-                  <h3 className="text-2xl font-black text-slate-900 tracking-tight">
-                    {subscriptionInfo.currentPlan}
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Essai gratuit jusqu'au {formatShortDate(subscriptionInfo.trialEndDate)} ({subscriptionInfo.daysLeft} jours).
-                  </p>
-                </div>
-
-                {/* Progress bars: Immeubles and Locataires */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-2">
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-1.5 font-semibold text-slate-600">
-                      <span>Immeubles</span>
-                      <span>
-                        {buildings.length} / {subscriptionInfo.maxBuildings}
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.min(100, (buildings.length / subscriptionInfo.maxBuildings) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-
-                  <div>
-                    <div className="flex items-center justify-between text-xs mb-1.5 font-semibold text-slate-600">
-                      <span>Locataires</span>
-                      <span>
-                        {tenants.length} / {subscriptionInfo.maxTenants}
-                      </span>
-                    </div>
-                    <div className="w-full bg-slate-100 h-1.5 rounded-full overflow-hidden">
-                      <div
-                        className="bg-blue-600 h-full rounded-full transition-all duration-500"
-                        style={{
-                          width: `${Math.min(100, (tenants.length / subscriptionInfo.maxTenants) * 100)}%`,
-                        }}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* Middle Card: Payer / renouveler mon abonnement matching image_c7fdaffd.png */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-5">
-                <div>
-                  <h3 className="text-base font-bold text-slate-900">
-                    Payer / renouveler mon abonnement
-                  </h3>
-                  <p className="text-xs text-slate-500 font-medium mt-0.5">
-                    Paiement sécurisé par Orange Money, Wave ou MTN Mobile Money.
-                  </p>
-                </div>
-
-                {/* Formule selector */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-2">Formule</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSubPlan('Pro')}
-                      className={`p-3.5 rounded-xl border-2 text-left flex items-center justify-between transition-all cursor-pointer ${
-                        selectedSubPlan === 'Pro'
-                          ? 'border-blue-600 bg-blue-50/40'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="font-bold text-xs text-slate-900">Pro</span>
-                      <span className="text-xs font-semibold text-slate-600">15 000 FCFA / mois</span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedSubPlan('Enterprise')}
-                      className={`p-3.5 rounded-xl border-2 text-left flex items-center justify-between transition-all cursor-pointer ${
-                        selectedSubPlan === 'Enterprise'
-                          ? 'border-blue-600 bg-blue-50/40'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="font-bold text-xs text-slate-900">Enterprise</span>
-                      <span className="text-xs font-semibold text-slate-600">45 000 FCFA / mois</span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Durée selector matching image_c7fdaffd.png */}
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-2">Durée</label>
-                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDuration(1)}
-                      className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
-                        selectedDuration === 1
-                          ? 'border-blue-600 bg-blue-50/40'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="block font-bold text-xs text-slate-900">1 mois</span>
-                      <span className="text-xs text-slate-500 font-semibold">
-                        {formatFCFA(planBasePrice)}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDuration(3)}
-                      className={`p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
-                        selectedDuration === 3
-                          ? 'border-blue-600 bg-blue-50/40'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="block font-bold text-xs text-slate-900">3 mois</span>
-                      <span className="text-xs text-slate-500 font-semibold">
-                        {formatFCFA(planBasePrice * 3)}
-                      </span>
-                    </button>
-
-                    <button
-                      type="button"
-                      onClick={() => setSelectedDuration(12)}
-                      className={`relative p-3 rounded-xl border-2 text-center transition-all cursor-pointer ${
-                        selectedDuration === 12
-                          ? 'border-blue-600 bg-blue-50/40'
-                          : 'border-slate-200 hover:border-slate-300'
-                      }`}
-                    >
-                      <span className="block font-bold text-xs text-slate-900">12 mois</span>
-                      <span className="text-xs text-slate-500 font-semibold">
-                        {formatFCFA(planBasePrice * 10)}
-                      </span>
-                      <span className="mt-1 inline-block text-[9px] font-bold text-emerald-700 bg-emerald-50 px-1.5 py-0.2 rounded-full border border-emerald-200">
-                        2 mois offerts
-                      </span>
-                    </button>
-                  </div>
-                </div>
-
-                {/* Mobile Money Provider selection */}
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 items-end">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Moyen Mobile Money
-                    </label>
-                    <select
-                      value={selectedPaymentProvider}
-                      onChange={e =>
-                        setSelectedPaymentProvider(
-                          e.target.value as 'Orange Money' | 'Wave' | 'MTN MoMo'
-                        )
-                      }
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-white"
-                    >
-                      <option value="Orange Money">Orange Money Sénégal</option>
-                      <option value="Wave">Wave Sénégal</option>
-                      <option value="MTN MoMo">MTN Mobile Money</option>
-                    </select>
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-700 mb-1.5">
-                      Numéro {selectedPaymentProvider} <span className="text-red-500">*</span>
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={subPhone}
-                      onChange={e => setSubPhone(e.target.value)}
-                      placeholder="777030600"
-                      className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs font-mono font-bold text-slate-800"
-                    />
-                  </div>
-                </div>
-
-                {/* Total box matching image_c7fdaffd.png */}
-                <div className="p-4 rounded-xl bg-slate-50 border border-slate-200/80 flex items-center justify-between">
-                  <div>
-                    <span className="text-xs text-slate-500 font-semibold block">Total à payer</span>
-                    <span className="text-xl font-black text-slate-900">
-                      {formatFCFA(computedSubTotal)}
-                    </span>
-                  </div>
-
-                  <button
-                    onClick={handleRenewSubscription}
-                    disabled={isRenewing}
-                    className="flex items-center gap-2 px-6 py-3 rounded-xl bg-blue-600 hover:bg-blue-700 disabled:opacity-50 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition-all cursor-pointer active:scale-95"
-                  >
-                    {isRenewing ? (
-                      <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                    ) : (
-                      <Check className="w-4 h-4 stroke-[3]" />
-                    )}
-                    <span>Payer {formatFCFA(computedSubTotal)}</span>
-                  </button>
-                </div>
-
-                <p className="text-[11px] text-slate-400">
-                  Vous validerez le paiement sur votre téléphone. Aucun prélèvement automatique.
-                </p>
-              </div>
-
-              {/* Bottom Card: Historique des paiements matching image_c7fdaffd.png */}
-              <div className="bg-white rounded-2xl border border-slate-200/80 p-6 shadow-2xs space-y-4">
-                <h3 className="text-base font-bold text-slate-900">Historique des paiements</h3>
-
-                {subscriptionInvoices.length === 0 ? (
-                  <p className="text-xs text-slate-400 py-3">
-                    Aucun paiement d'abonnement pour l'instant.
-                  </p>
-                ) : (
-                  <div className="divide-y divide-slate-100">
-                    {subscriptionInvoices.map(inv => (
-                      <div
-                        key={inv.id}
-                        className="py-3 flex items-center justify-between text-xs"
-                      >
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900">Formule {inv.plan}</span>
-                            <span className="text-[10px] bg-slate-100 text-slate-600 px-2 py-0.5 rounded-full font-semibold">
-                              {inv.durationMonths} mois
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
-                            Réf : {inv.reference} • {inv.method} • {formatShortDate(inv.date)}
-                          </p>
-                        </div>
-
-                        <div className="text-right">
-                          <span className="font-black text-emerald-700 block">
-                            {formatFCFA(inv.amount)}
-                          </span>
-                          <span className="text-[10px] text-emerald-600 font-bold">Payé</span>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================= */}
-          {/* 6. SUPPORT SUBTAB (Matches image_6f314153.png)            */}
+          {/* 5. SUPPORT SUBTAB (Matches image_6f314153.png)            */}
           {/* ========================================================= */}
           {settingsSubTab === 'support' && (
             <div className="space-y-6">

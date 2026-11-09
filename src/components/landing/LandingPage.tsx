@@ -465,7 +465,7 @@ export const LandingPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setActivePricingPlan('Pro');
-                    setSettingsSubTab('abonnement');
+                    setSettingsSubTab('profil');
                     navigateToAppTab('settings');
                   }}
                   className="w-full py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs shadow-md shadow-blue-600/25 transition-all cursor-pointer"
@@ -518,7 +518,7 @@ export const LandingPage: React.FC = () => {
                 <button
                   onClick={() => {
                     setActivePricingPlan('Enterprise');
-                    setSettingsSubTab('abonnement');
+                    setSettingsSubTab('profil');
                     navigateToAppTab('settings');
                   }}
                   className="w-full py-2.5 rounded-xl border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-white font-bold text-xs transition-colors cursor-pointer"

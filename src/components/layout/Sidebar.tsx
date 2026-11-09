@@ -27,8 +27,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
     activeTab,
     setActiveTab,
     notifications,
-    setSettingsSubTab,
-    subscriptionInfo,
     setIsLogoutConfirmOpen,
   } = useApp();
 
@@ -138,28 +136,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
           </button>
         </div>
 
-        {/* Agency Footer */}
-        <div
-          onClick={() => {
-            setActiveTab('settings');
-            setSettingsSubTab('abonnement');
-            if (onClose) onClose();
-          }}
-          className="p-3.5 border-t border-slate-800/80 bg-slate-950/40 text-xs text-slate-400 cursor-pointer hover:bg-slate-900/60 transition-colors"
-          title="Gérer mon abonnement et mes paiements"
-        >
-          <div className="flex items-center justify-between">
-            <span className="font-medium text-slate-300">
-              Formule {subscriptionInfo.currentPlan}
-            </span>
-            <span className="text-[11px] px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-semibold">
-              {subscriptionInfo.status === 'trial' ? 'Essai' : 'Actif'}
-            </span>
-          </div>
-          <p className="text-[11px] text-slate-500 mt-0.5">
-            {subscriptionInfo.daysLeft} jours restants • Dakar (FCFA)
-          </p>
-        </div>
 
         {/* Exact Déconnexion Footer matching image_3c94cf31.png */}
         <div className="pt-2 pb-3 px-3 border-t border-slate-800/80 bg-[#0e172a]">
