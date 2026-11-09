@@ -27,7 +27,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
     activeTab,
     setActiveTab,
     notifications,
-    setViewMode,
     setSettingsSubTab,
     subscriptionInfo,
     setIsLogoutConfirmOpen,
@@ -113,18 +112,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
             );
           })}
 
-          <div className="pt-2 mt-2 border-t border-slate-800/60">
-            <button
-              onClick={() => {
-                setViewMode('landing');
-                if (onClose) onClose();
-              }}
-              className="w-full flex items-center gap-3.5 px-3.5 py-2.5 rounded-xl text-sm font-medium text-slate-400 hover:text-white hover:bg-slate-800/60 transition-all cursor-pointer"
-            >
-              <Home className="w-5 h-5 flex-shrink-0 text-slate-400" />
-              <span>Accueil du site</span>
-            </button>
-          </div>
         </div>
 
         {/* Mobile Money Quick Simulation Banner */}

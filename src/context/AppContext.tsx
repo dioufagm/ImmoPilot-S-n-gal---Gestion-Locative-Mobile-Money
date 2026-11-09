@@ -45,8 +45,8 @@ interface AppContextType {
   settings: AgencySettings;
   activeTab: string;
   setActiveTab: (tab: string) => void;
-  viewMode: 'landing' | 'app';
-  setViewMode: (mode: 'landing' | 'app') => void;
+  viewMode: 'landing' | 'app' | 'login';
+  setViewMode: (mode: 'landing' | 'app' | 'login') => void;
   activePricingPlan: 'Starter' | 'Pro' | 'Enterprise';
   setActivePricingPlan: (plan: 'Starter' | 'Pro' | 'Enterprise') => void;
   navigateToAppTab: (tab: string) => void;
@@ -121,9 +121,9 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [activeTab, setActiveTab] = useState<string>('dashboard');
-  const [viewMode, setViewMode] = useState<'landing' | 'app'>(() => {
+  const [viewMode, setViewMode] = useState<'landing' | 'app' | 'login'>(() => {
     const saved = localStorage.getItem('immopilot_view_mode');
-    return (saved as 'landing' | 'app') || 'landing';
+    return (saved as 'landing' | 'app' | 'login') || 'landing';
   });
   const [activePricingPlan, setActivePricingPlan] = useState<'Starter' | 'Pro' | 'Enterprise'>('Pro');
   const [settingsSubTab, setSettingsSubTab] = useState<SettingsSubTab>('profil');
@@ -137,7 +137,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const navigateToAppTab = (tab: string) => {
     if (!isAuthenticated) {
-      setIsLoginModalOpen(true);
+      setViewMode('login');
       return;
     }
     setActiveTab(tab);
@@ -634,7 +634,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
 
   const logout = () => {
     setIsAuthenticated(false);
-    setViewMode('landing');
+    setViewMode('login');
     setIsLogoutConfirmOpen(false);
     addNotification({
       type: 'loyer_recu',

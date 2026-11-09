@@ -2,7 +2,6 @@ import React, { useState, useRef, useEffect } from 'react';
 import {
   Menu,
   Bell,
-  Home,
   CheckCheck,
   Smartphone,
   Send,
@@ -36,7 +35,6 @@ export const Header: React.FC<HeaderProps> = ({
     markAllNotificationsAsRead,
     triggerBatchReminders,
     settings,
-    setViewMode,
     setSettingsSubTab,
     setIsLogoutConfirmOpen,
   } = useApp();
@@ -136,15 +134,6 @@ export const Header: React.FC<HeaderProps> = ({
           <span>Portail Locataire</span>
         </button>
 
-        {/* Accueil du site (Exact replica of screenshots 2 & 3) */}
-        <button
-          onClick={() => setViewMode('landing')}
-          className="hidden md:flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg text-slate-600 hover:text-blue-600 hover:bg-slate-50 text-xs font-semibold transition-colors cursor-pointer"
-          title="Retourner à la page d'accueil du site"
-        >
-          <Home className="w-4 h-4" />
-          <span>Accueil du site</span>
-        </button>
 
         {/* Notifications Popover */}
         <div className="relative" ref={notifRef}>

@@ -215,7 +215,7 @@ export const LandingPage: React.FC = () => {
             </>
           ) : (
             <button
-              onClick={() => setIsLoginModalOpen(true)}
+              onClick={() => setViewMode('login')}
               className="flex items-center gap-2 px-4 py-2 rounded-full bg-blue-600 hover:bg-blue-700 text-white font-semibold text-xs shadow-md shadow-blue-600/25 transition-all cursor-pointer"
             >
               <LogIn className="w-3.5 h-3.5" />

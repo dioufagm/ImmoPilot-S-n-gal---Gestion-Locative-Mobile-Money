@@ -17,6 +17,7 @@ import { ReportsView } from './components/reports/ReportsView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { SettingsView } from './components/settings/SettingsView';
 import { LandingPage } from './components/landing/LandingPage';
+import { LoginPage } from './components/auth/LoginPage';
 import { LogoutConfirmModal } from './components/auth/LogoutConfirmModal';
 import { LoginModal } from './components/auth/LoginModal';
 import { Tenant } from './types';
@@ -53,6 +54,28 @@ function MainApp() {
     setTargetTenantForPayment(tenant || null);
     setIsPortalModalOpen(true);
   };
+
+  if (viewMode === 'login') {
+    return (
+      <>
+        <LoginPage />
+        {/* Modals available if triggered */}
+        <TenantPaymentPortalModal
+          isOpen={isPortalModalOpen}
+          onClose={() => {
+            setIsPortalModalOpen(false);
+            setTargetTenantForPayment(null);
+          }}
+          initialTenant={targetTenantForPayment}
+        />
+        <RentReceiptModal
+          payment={viewingReceiptPayment}
+          isOpen={!!viewingReceiptPayment}
+          onClose={() => setViewingReceiptPayment(null)}
+        />
+      </>
+    );
+  }
 
   if (viewMode === 'landing') {
     return (
