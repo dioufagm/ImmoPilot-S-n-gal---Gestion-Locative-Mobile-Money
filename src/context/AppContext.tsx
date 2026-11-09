@@ -26,7 +26,7 @@ import {
   INITIAL_SUPPORT_TICKETS,
 } from '../data/mockData';
 
-export type SettingsSubTab = 'profil' | 'agence' | 'utilisateurs' | 'securite' | 'support';
+export type SettingsSubTab = 'profil' | 'agence' | 'securite' | 'support';
 
 export interface UserProfileData {
   fullName: string;

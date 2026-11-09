@@ -4,7 +4,6 @@ import {
   Building2,
   Lock,
   HelpCircle,
-  Users,
   Eye,
   EyeOff,
   Save,
@@ -19,7 +18,6 @@ import {
   LogOut,
 } from 'lucide-react';
 import { useApp, SettingsSubTab } from '../../context/AppContext';
-import { AdminUser } from '../../types';
 
 export const SettingsView: React.FC = () => {
   const {
@@ -28,10 +26,6 @@ export const SettingsView: React.FC = () => {
     userProfile,
     updateUserProfile,
     changePassword,
-    adminUsers,
-    addAdminUser,
-    updateAdminUser,
-    deleteAdminUser,
     supportTickets,
     addSupportTicket,
     settings,
@@ -125,39 +119,10 @@ export const SettingsView: React.FC = () => {
     showToast('Coordonnées de l’agence enregistrées !');
   };
 
-  // 6. User Management (Admin team) state
-  const [isInviteModalOpen, setIsInviteModalOpen] = useState(false);
-  const [newUserFullName, setNewUserFullName] = useState('');
-  const [newUserEmail, setNewUserEmail] = useState('');
-  const [newUserPhone, setNewUserPhone] = useState('+221 77 ');
-  const [newUserRole, setNewUserRole] = useState<
-    'Super Admin' | 'Gestionnaire' | 'Comptable' | 'Agent Terrain'
-  >('Gestionnaire');
-
-  const handleCreateUser = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!newUserFullName.trim() || !newUserEmail.trim()) return;
-
-    addAdminUser({
-      fullName: newUserFullName,
-      email: newUserEmail,
-      phone: newUserPhone,
-      role: newUserRole,
-      status: 'actif',
-    });
-
-    setNewUserFullName('');
-    setNewUserEmail('');
-    setNewUserPhone('+221 77 ');
-    setIsInviteModalOpen(false);
-    showToast(`Utilisateur ${newUserFullName} ajouté à l'équipe !`);
-  };
-
   // Subtabs configuration
   const subTabs = [
     { id: 'profil', label: 'Profil', icon: User },
     { id: 'agence', label: 'Agence', icon: Building2 },
-    { id: 'utilisateurs', label: 'Utilisateurs', icon: Users },
     { id: 'securite', label: 'Sécurité', icon: Lock },
     { id: 'support', label: 'Support', icon: HelpCircle },
   ];
@@ -176,7 +141,7 @@ export const SettingsView: React.FC = () => {
       <div>
         <h2 className="text-3xl font-black text-blue-600 tracking-tight">Paramètres</h2>
         <p className="text-xs sm:text-sm text-slate-500 font-medium mt-1">
-          Gérez votre compte, votre agence et vos utilisateurs.
+          Gérez votre profil, votre agence et la sécurité de votre compte.
         </p>
       </div>
 
@@ -426,104 +391,7 @@ export const SettingsView: React.FC = () => {
           )}
 
           {/* ========================================================= */}
-          {/* 3. UTILISATEURS / ÉQUIPE SUBTAB                           */}
-          {/* ========================================================= */}
-          {settingsSubTab === 'utilisateurs' && (
-            <div className="space-y-4">
-              <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs p-6">
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-slate-100">
-                  <div>
-                    <h3 className="text-base font-bold text-slate-900">
-                      Gestion des utilisateurs & Profils
-                    </h3>
-                    <p className="text-xs text-slate-500 font-medium mt-0.5">
-                      Contrôlez les accès administrateurs, comptables et agents de terrain.
-                    </p>
-                  </div>
-
-                  <button
-                    onClick={() => setIsInviteModalOpen(true)}
-                    className="flex items-center gap-1.5 px-4 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25 transition-all cursor-pointer active:scale-95"
-                  >
-                    <Plus className="w-4 h-4 stroke-[3]" />
-                    <span>Inviter un collaborateur</span>
-                  </button>
-                </div>
-
-                {/* Users List */}
-                <div className="divide-y divide-slate-100 mt-2">
-                  {adminUsers.map(user => (
-                    <div
-                      key={user.id}
-                      className="py-3.5 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs"
-                    >
-                      <div className="flex items-center gap-3">
-                        <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white font-bold text-sm flex items-center justify-center shadow-xs">
-                          {user.fullName.charAt(0)}
-                        </div>
-                        <div>
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900 text-sm">{user.fullName}</span>
-                            <span
-                              className={`text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                                user.role === 'Super Admin'
-                                  ? 'bg-purple-50 text-purple-700 border border-purple-200'
-                                  : user.role === 'Gestionnaire'
-                                  ? 'bg-blue-50 text-blue-700 border border-blue-200'
-                                  : user.role === 'Comptable'
-                                  ? 'bg-emerald-50 text-emerald-700 border border-emerald-200'
-                                  : 'bg-amber-50 text-amber-700 border border-amber-200'
-                              }`}
-                            >
-                              {user.role}
-                            </span>
-                          </div>
-                          <p className="text-[11px] text-slate-400 mt-0.5">
-                            {user.email} • Tel : {user.phone}
-                          </p>
-                        </div>
-                      </div>
-
-                      <div className="flex items-center gap-3 self-end sm:self-center">
-                        <div className="text-right">
-                          <span
-                            className={`inline-block text-[10px] font-bold px-2 py-0.5 rounded-full ${
-                              user.status === 'actif'
-                                ? 'bg-emerald-50 text-emerald-700'
-                                : 'bg-amber-50 text-amber-700'
-                            }`}
-                          >
-                            {user.status === 'actif' ? 'Actif' : 'Invité'}
-                          </span>
-                          <span className="text-[10px] text-slate-400 block mt-0.5">
-                            {user.lastLogin}
-                          </span>
-                        </div>
-
-                        {user.id !== 'usr-1' && (
-                          <button
-                            onClick={() => {
-                              if (confirm(`Supprimer l'accès pour ${user.fullName} ?`)) {
-                                deleteAdminUser(user.id);
-                                showToast('Accès utilisateur supprimé.');
-                              }
-                            }}
-                            className="p-1.5 rounded-lg text-slate-400 hover:text-red-600 hover:bg-red-50 transition-colors"
-                            title="Supprimer cet utilisateur"
-                          >
-                            <Trash2 className="w-4 h-4" />
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            </div>
-          )}
-
-          {/* ========================================================= */}
-          {/* 4. SÉCURITÉ SUBTAB (Matches image_3e53b16a.png)          */}
+          {/* 3. SÉCURITÉ SUBTAB (Matches image_3e53b16a.png)          */}
           {/* ========================================================= */}
           {settingsSubTab === 'securite' && (
             <div className="bg-white rounded-2xl border border-slate-200/80 shadow-2xs overflow-hidden">
@@ -781,102 +649,6 @@ export const SettingsView: React.FC = () => {
         </div>
       </div>
 
-      {/* Modal: Inviter un collaborateur */}
-      {isInviteModalOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs animate-in fade-in duration-200">
-          <div className="w-full max-w-md bg-white rounded-3xl shadow-2xl border border-slate-100 p-6 space-y-4">
-            <h3 className="text-lg font-bold text-slate-900">Inviter un nouveau collaborateur</h3>
-            <p className="text-xs text-slate-500">
-              Attribuez un profil et des droits d'accès à votre gestionnaire ou comptable.
-            </p>
-
-            <form onSubmit={handleCreateUser} className="space-y-4">
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Nom et prénom *
-                </label>
-                <input
-                  type="text"
-                  required
-                  value={newUserFullName}
-                  onChange={e => setNewUserFullName(e.target.value)}
-                  placeholder="ex : Moussa Fall"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800"
-                />
-              </div>
-
-              <div>
-                <label className="block text-xs font-semibold text-slate-700 mb-1">
-                  Adresse e-mail *
-                </label>
-                <input
-                  type="email"
-                  required
-                  value={newUserEmail}
-                  onChange={e => setNewUserEmail(e.target.value)}
-                  placeholder="collaborateur@abservices.sn"
-                  className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800"
-                />
-              </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Téléphone
-                  </label>
-                  <input
-                    type="text"
-                    value={newUserPhone}
-                    onChange={e => setNewUserPhone(e.target.value)}
-                    placeholder="+221 77 000 00 00"
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-medium text-slate-800"
-                  />
-                </div>
-
-                <div>
-                  <label className="block text-xs font-semibold text-slate-700 mb-1">
-                    Rôle & Profil
-                  </label>
-                  <select
-                    value={newUserRole}
-                    onChange={e =>
-                      setNewUserRole(
-                        e.target.value as
-                          | 'Super Admin'
-                          | 'Gestionnaire'
-                          | 'Comptable'
-                          | 'Agent Terrain'
-                      )
-                    }
-                    className="w-full px-3 py-2 rounded-xl border border-slate-300 text-xs font-bold text-slate-800 bg-white"
-                  >
-                    <option value="Gestionnaire">Gestionnaire</option>
-                    <option value="Comptable">Comptable</option>
-                    <option value="Agent Terrain">Agent Terrain</option>
-                    <option value="Super Admin">Super Admin</option>
-                  </select>
-                </div>
-              </div>
-
-              <div className="pt-2 flex items-center justify-end gap-2">
-                <button
-                  type="button"
-                  onClick={() => setIsInviteModalOpen(false)}
-                  className="px-4 py-2 rounded-xl text-xs font-semibold text-slate-500 hover:bg-slate-100"
-                >
-                  Annuler
-                </button>
-                <button
-                  type="submit"
-                  className="px-5 py-2 rounded-xl bg-blue-600 hover:bg-blue-700 text-white text-xs font-bold shadow-md shadow-blue-600/25"
-                >
-                  Ajouter
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
     </div>
   );
 };

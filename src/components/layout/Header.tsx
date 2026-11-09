@@ -11,6 +11,7 @@ import {
   Sparkles,
   LogOut,
   User,
+  UserCog,
   ChevronDown,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
@@ -76,6 +77,8 @@ export const Header: React.FC<HeaderProps> = ({
         return 'Suivi des loyers & Échéancier';
       case 'reports':
         return 'Rapports & Statistiques';
+      case 'users':
+        return 'Gestion des utilisateurs & Accès';
       case 'notifications':
         return 'Notifications & Alertes';
       case 'settings':
@@ -238,6 +241,17 @@ export const Header: React.FC<HeaderProps> = ({
               >
                 <User className="w-4 h-4 text-slate-400" />
                 <span>Mon profil & Agence</span>
+              </button>
+
+              <button
+                onClick={() => {
+                  setActiveTab('users');
+                  setShowUserMenu(false);
+                }}
+                className="w-full flex items-center gap-2.5 px-3 py-2 rounded-xl text-xs font-medium text-slate-700 hover:bg-slate-50 transition-colors text-left cursor-pointer"
+              >
+                <UserCog className="w-4 h-4 text-slate-400" />
+                <span>Gestion des utilisateurs</span>
               </button>
 
               <div className="border-t border-slate-100 my-1" />

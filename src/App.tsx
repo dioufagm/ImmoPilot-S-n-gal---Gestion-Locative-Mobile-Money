@@ -16,6 +16,7 @@ import { RentsScheduleView } from './components/rents/RentsScheduleView';
 import { ReportsView } from './components/reports/ReportsView';
 import { NotificationsView } from './components/notifications/NotificationsView';
 import { SettingsView } from './components/settings/SettingsView';
+import { UsersManagementView } from './components/users/UsersManagementView';
 import { LandingPage } from './components/landing/LandingPage';
 import { LoginPage } from './components/auth/LoginPage';
 import { LogoutConfirmModal } from './components/auth/LogoutConfirmModal';
@@ -164,6 +165,8 @@ function MainApp() {
           )}
 
           {activeTab === 'reports' && <ReportsView />}
+
+          {activeTab === 'users' && <UsersManagementView />}
 
           {activeTab === 'notifications' && <NotificationsView />}
 

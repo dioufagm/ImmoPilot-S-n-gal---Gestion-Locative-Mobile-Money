@@ -13,6 +13,7 @@ import {
   Smartphone,
   ChevronRight,
   LogOut,
+  UserCog,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 
@@ -40,6 +41,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, onClose, onOpenPortalM
     { id: 'payments', label: 'Paiements', icon: CreditCard },
     { id: 'rents', label: 'Loyers', icon: CalendarCheck },
     { id: 'reports', label: 'Rapports', icon: BarChart3 },
+    { id: 'users', label: 'Utilisateurs', icon: UserCog },
     { id: 'notifications', label: 'Notifications', icon: Bell, badge: unreadCount },
     { id: 'settings', label: 'Paramètres', icon: Settings },
   ];
