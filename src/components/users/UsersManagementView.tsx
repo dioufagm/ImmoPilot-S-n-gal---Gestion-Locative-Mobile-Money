@@ -23,6 +23,8 @@ import {
   UserCheck,
   UserX,
   BadgeCheck,
+  Eye,
+  EyeOff,
 } from 'lucide-react';
 import { useApp } from '../../context/AppContext';
 import { AdminUser } from '../../types';
@@ -44,6 +46,11 @@ export const UsersManagementView: React.FC = () => {
   const [fullName, setFullName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('+221 77 ');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [role, setRole] = useState<'Super Admin' | 'Gestionnaire' | 'Comptable' | 'Agent Terrain'>(
     'Gestionnaire'
   );
@@ -80,7 +87,24 @@ export const UsersManagementView: React.FC = () => {
   // Handlers
   const handleCreateUser = (e: React.FormEvent) => {
     e.preventDefault();
+    setPasswordError(null);
+
     if (!fullName.trim() || !email.trim()) return;
+
+    if (!password) {
+      setPasswordError('Veuillez saisir un mot de passe.');
+      return;
+    }
+
+    if (password.length < 6) {
+      setPasswordError('Le mot de passe doit comporter au moins 6 caractères.');
+      return;
+    }
+
+    if (password !== confirmPassword) {
+      setPasswordError('Les mots de passe ne correspondent pas.');
+      return;
+    }
 
     addAdminUser({
       fullName: fullName.trim(),
@@ -93,6 +117,11 @@ export const UsersManagementView: React.FC = () => {
     setFullName('');
     setEmail('');
     setPhone('+221 77 ');
+    setPassword('');
+    setConfirmPassword('');
+    setShowPassword(false);
+    setShowConfirmPassword(false);
+    setPasswordError(null);
     setRole('Gestionnaire');
     setStatus('actif');
     setIsAddModalOpen(false);
@@ -192,7 +221,12 @@ export const UsersManagementView: React.FC = () => {
         </div>
 
         <button
-          onClick={() => setIsAddModalOpen(true)}
+          onClick={() => {
+            setPassword('');
+            setConfirmPassword('');
+            setPasswordError(null);
+            setIsAddModalOpen(true);
+          }}
           className="flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-blue-600 hover:bg-blue-700 text-white font-bold text-xs sm:text-sm shadow-md shadow-blue-600/25 transition-all cursor-pointer active:scale-95"
         >
           <UserPlus className="w-4 h-4 stroke-[2.5]" />
@@ -536,8 +570,13 @@ export const UsersManagementView: React.FC = () => {
                 </div>
               </div>
               <button
-                onClick={() => setIsAddModalOpen(false)}
-                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100"
+                onClick={() => {
+                  setIsAddModalOpen(false);
+                  setPassword('');
+                  setConfirmPassword('');
+                  setPasswordError(null);
+                }}
+                className="p-1 rounded-lg text-slate-400 hover:text-slate-600 hover:bg-slate-100 cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -545,6 +584,13 @@ export const UsersManagementView: React.FC = () => {
 
             {/* Form */}
             <form onSubmit={handleCreateUser} className="p-6 space-y-4">
+              {passwordError && (
+                <div className="p-3 rounded-xl bg-red-50 border border-red-200 text-red-700 text-xs flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 shrink-0 text-red-500" />
+                  <span>{passwordError}</span>
+                </div>
+              )}
+
               <div>
                 <label className="block text-xs font-semibold text-slate-700 mb-1.5">
                   Nom et prénom complet <span className="text-red-500">*</span>
@@ -585,6 +631,63 @@ export const UsersManagementView: React.FC = () => {
                     placeholder="+221 77 000 00 00"
                     className="w-full px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
                   />
+                </div>
+              </div>
+
+              {/* Mots de passe */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Nouveau mot de passe <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showPassword ? 'text' : 'password'}
+                      required
+                      value={password}
+                      onChange={e => {
+                        setPassword(e.target.value);
+                        if (passwordError) setPasswordError(null);
+                      }}
+                      placeholder="••••••••••••"
+                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowPassword(!showPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Min. 6 caractères</p>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-semibold text-slate-700 mb-1.5">
+                    Confirmer le nouveau mot de passe <span className="text-red-500">*</span>
+                  </label>
+                  <div className="relative">
+                    <input
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      required
+                      value={confirmPassword}
+                      onChange={e => {
+                        setConfirmPassword(e.target.value);
+                        if (passwordError) setPasswordError(null);
+                      }}
+                      placeholder="••••••••••••"
+                      className="w-full px-3.5 py-2.5 pr-10 rounded-xl border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-blue-500/20 focus:border-blue-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600 cursor-pointer"
+                    >
+                      {showConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                    </button>
+                  </div>
+                  <p className="text-[10px] text-slate-400 mt-1">Doit être identique</p>
                 </div>
               </div>
 
@@ -652,8 +755,13 @@ export const UsersManagementView: React.FC = () => {
               <div className="pt-4 border-t border-slate-100 flex items-center justify-end gap-3">
                 <button
                   type="button"
-                  onClick={() => setIsAddModalOpen(false)}
-                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50"
+                  onClick={() => {
+                    setIsAddModalOpen(false);
+                    setPassword('');
+                    setConfirmPassword('');
+                    setPasswordError(null);
+                  }}
+                  className="px-4 py-2.5 rounded-xl border border-slate-300 text-xs font-semibold text-slate-600 hover:bg-slate-50 cursor-pointer"
                 >
                   Annuler
                 </button>
